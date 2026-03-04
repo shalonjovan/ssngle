@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Simple WebRTC Test</title>
+</head>
+<body>
+
+<h2>Local Video</h2>
+<video id="localVideo" autoplay muted playsinline width="400"></video>
+
+<h2>Remote Video</h2>
+<video id="remoteVideo" autoplay playsinline width="400"></video>
+
+<br><br>
+
+<button onclick="createOffer()">Create Offer</button>
+<button onclick="createAnswer()">Create Answer</button>
+
+<br><br>
+
+<textarea id="signalData" rows="10" cols="60"></textarea>
+
+<script>
+
+let localStream;
+let peer;
+
+async function startCamera() {
+
+    localStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+    });
+
+    document.getElementById("localVideo").srcObject = localStream;
+
+    peer = new RTCPeerConnection({
+        iceServers: [
+            { urls: "stun:stun.l.google.com:19302" }
+        ]
+    });
+
+    localStream.getTracks().forEach(track => {
+        peer.addTrack(track, localStream);
+    });
+
+    peer.ontrack = (event) => {
+        document.getElementById("remoteVideo").srcObject = event.streams[0];
+    };
+
+    peer.onicecandidate = (event) => {
+        if(event.candidate === null){
+            document.getElementById("signalData").value =
+                JSON.stringify(peer.localDescription);
+        }
+    };
+}
+
+async function createOffer(){
+
+    await startCamera();
+
+    const offer = await peer.createOffer();
+
+    await peer.setLocalDescription(offer);
+}
+
+async function createAnswer(){
+
+    await startCamera();
+
+    const offer = JSON.parse(document.getElementById("signalData").value);
+
+    await peer.setRemoteDescription(offer);
+
+    const answer = await peer.createAnswer();
+
+    await peer.setLocalDescription(answer);
+}
+
+async function acceptAnswer(){
+
+    const answer = JSON.parse(document.getElementById("signalData").value);
+
+    await peer.setRemoteDescription(answer);
+}
+
+window.acceptAnswer = acceptAnswer;
+
+</script>
+
+<br><br>
+
+<button onclick="acceptAnswer()">Accept Answer</button>
+
+</body>
+</html>
