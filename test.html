@@ -1,97 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<title>Simple WebRTC Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Video Connection</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<h2>Local Video</h2>
-<video id="localVideo" autoplay muted playsinline width="400"></video>
+    <div class="container">
+        <header>
+            <h1>WebRTC Test</h1>
+            <p>A modern peer-to-peer video connection</p>
+        </header>
 
-<h2>Remote Video</h2>
-<video id="remoteVideo" autoplay playsinline width="400"></video>
+        <div class="video-container">
+            <div class="video-wrapper">
+                <h2>Local Video</h2>
+                <video id="localVideo" autoplay muted playsinline></video>
+            </div>
+            <div class="video-wrapper">
+                <h2>Remote Video</h2>
+                <video id="remoteVideo" autoplay playsinline></video>
+            </div>
+        </div>
 
-<br><br>
+        <div class="controls">
+            <button class="btn btn-primary" onclick="createOffer()">Create Offer</button>
+            <button class="btn btn-secondary" onclick="createAnswer()">Create Answer</button>
+            <button class="btn btn-success" onclick="acceptAnswer()">Accept Answer</button>
+        </div>
 
-<button onclick="createOffer()">Create Offer</button>
-<button onclick="createAnswer()">Create Answer</button>
+        <div class="signal-container">
+            <label for="signalData">Signal Data Exchange</label>
+            <textarea id="signalData" placeholder="SDP exchange data will appear here..."></textarea>
+        </div>
 
-<br><br>
+        <script>
 
-<textarea id="signalData" rows="10" cols="60"></textarea>
+            let localStream;
+            let peer;
 
-<script>
+            async function startCamera() {
 
-let localStream;
-let peer;
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
+                });
 
-async function startCamera() {
+                document.getElementById("localVideo").srcObject = localStream;
 
-    localStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-    });
+                peer = new RTCPeerConnection({
+                    iceServers: [
+                        { urls: "stun:stun.l.google.com:19302" }
+                    ]
+                });
 
-    document.getElementById("localVideo").srcObject = localStream;
+                localStream.getTracks().forEach(track => {
+                    peer.addTrack(track, localStream);
+                });
 
-    peer = new RTCPeerConnection({
-        iceServers: [
-            { urls: "stun:stun.l.google.com:19302" }
-        ]
-    });
+                peer.ontrack = (event) => {
+                    document.getElementById("remoteVideo").srcObject = event.streams[0];
+                };
 
-    localStream.getTracks().forEach(track => {
-        peer.addTrack(track, localStream);
-    });
+                peer.onicecandidate = (event) => {
+                    if (event.candidate === null) {
+                        document.getElementById("signalData").value =
+                            JSON.stringify(peer.localDescription);
+                    }
+                };
+            }
 
-    peer.ontrack = (event) => {
-        document.getElementById("remoteVideo").srcObject = event.streams[0];
-    };
+            async function createOffer() {
 
-    peer.onicecandidate = (event) => {
-        if(event.candidate === null){
-            document.getElementById("signalData").value =
-                JSON.stringify(peer.localDescription);
-        }
-    };
-}
+                await startCamera();
 
-async function createOffer(){
+                const offer = await peer.createOffer();
 
-    await startCamera();
+                await peer.setLocalDescription(offer);
+            }
 
-    const offer = await peer.createOffer();
+            async function createAnswer() {
 
-    await peer.setLocalDescription(offer);
-}
+                await startCamera();
 
-async function createAnswer(){
+                const offer = JSON.parse(document.getElementById("signalData").value);
 
-    await startCamera();
+                await peer.setRemoteDescription(offer);
 
-    const offer = JSON.parse(document.getElementById("signalData").value);
+                const answer = await peer.createAnswer();
 
-    await peer.setRemoteDescription(offer);
+                await peer.setLocalDescription(answer);
+            }
 
-    const answer = await peer.createAnswer();
+            async function acceptAnswer() {
 
-    await peer.setLocalDescription(answer);
-}
+                const answer = JSON.parse(document.getElementById("signalData").value);
 
-async function acceptAnswer(){
+                await peer.setRemoteDescription(answer);
+            }
 
-    const answer = JSON.parse(document.getElementById("signalData").value);
+            window.acceptAnswer = acceptAnswer;
 
-    await peer.setRemoteDescription(answer);
-}
+        </script>
 
-window.acceptAnswer = acceptAnswer;
-
-</script>
-
-<br><br>
-
-<button onclick="acceptAnswer()">Accept Answer</button>
+    </div>
 
 </body>
+
 </html>
