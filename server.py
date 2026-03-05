@@ -1,6 +1,7 @@
 import uuid
 from fastapi import FastAPI
 import socketio
+from fastapi.responses import FileResponse
 
 sio = socketio.AsyncServer(
     async_mode="asgi",
@@ -20,6 +21,9 @@ async def root():
         "queue_length": len(queue),
         "rooms": rooms
     }
+@app.get("/test")
+def index():
+    return FileResponse("test.html")
 
 
 # -------------------------
@@ -47,11 +51,9 @@ async def disconnect(sid):
 
     print("\nUser disconnected:", sid)
 
-    # remove from queue if waiting
     if sid in queue:
         queue.remove(sid)
 
-    # check if user was in a room
     for room_id, users in list(rooms.items()):
 
         if sid in users:
@@ -60,17 +62,14 @@ async def disconnect(sid):
 
             print("User left room:", room_id)
 
-            # remaining user
             if users:
 
                 other_user = users[0]
 
                 print("Re-queue remaining user:", other_user)
 
-                # add them back to queue
                 queue.append(other_user)
 
-            # delete the room
             del rooms[room_id]
 
             break
