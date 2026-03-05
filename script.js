@@ -10,12 +10,16 @@ const skipBtn = document.getElementById("skipBtn");
 
 async function startCamera() {
 
-    localStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-    });
+    if (!localStream) {
 
-    localVideo.srcObject = localStream;
+        localStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+        });
+
+        localVideo.srcObject = localStream;
+    }
+
 }
 
 function createPeer() {
@@ -46,6 +50,7 @@ function createPeer() {
         }
 
     };
+
 }
 
 
@@ -53,27 +58,29 @@ socket.on("match_found", async data => {
 
     room = data.room;
 
+    console.log("Matched in room:", room);
+
     await startCamera();
 
     createPeer();
 
-    const offer = await peer.createOffer();
+    if (data.initiator) {
 
-    await peer.setLocalDescription(offer);
+        const offer = await peer.createOffer();
 
-    socket.emit("offer", {
-        room: room,
-        offer: offer
-    });
+        await peer.setLocalDescription(offer);
+
+        socket.emit("offer", {
+            room: room,
+            offer: offer
+        });
+
+    }
 
 });
 
 
 socket.on("offer", async data => {
-
-    await startCamera();
-
-    createPeer();
 
     await peer.setRemoteDescription(data.offer);
 
@@ -111,6 +118,7 @@ skipBtn.onclick = () => {
 
     if (peer) {
         peer.close();
+        peer = null;
     }
 
     remoteVideo.srcObject = null;
@@ -120,7 +128,10 @@ skipBtn.onclick = () => {
 
 socket.on("skip", () => {
 
-    if (peer) peer.close();
+    if (peer) {
+        peer.close();
+        peer = null;
+    }
 
     remoteVideo.srcObject = null;
 
