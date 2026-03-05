@@ -2,18 +2,19 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebRTC Video Connection</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Random Video Chat</title>
+<link rel="stylesheet" href="static/style.css">
 </head>
 
 <body>
 
 <div class="container">
+
 <header>
-<h1>WebRTC Test</h1>
-<p>A modern peer-to-peer video connection</p>
+<h1>Random Video Chat</h1>
+<p>Connecting strangers...</p>
 </header>
 
 <div class="video-container">
@@ -31,19 +32,13 @@
 </div>
 
 <div class="controls">
-<button class="btn btn-primary" onclick="createOffer()">Create Offer</button>
-<button class="btn btn-secondary" onclick="createAnswer()">Create Answer</button>
-<button class="btn btn-success" onclick="acceptAnswer()">Accept Answer</button>
-</div>
-
-<div class="signal-container">
-<label for="signalData">Signal Data Exchange</label>
-<textarea id="signalData" placeholder="SDP exchange data will appear here..."></textarea>
+<button class="btn btn-secondary" id="skipBtn">Skip</button>
 </div>
 
 </div>
 
-<script src="script.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="static/script.js"></script>
 
 </body>
 </html>
