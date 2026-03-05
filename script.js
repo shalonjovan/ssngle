@@ -1,16 +1,23 @@
 const socket = io();
 
-let localStream;
-let peer;
-let room;
+let localStream = null;
+let peer = null;
+let room = null;
 
 const localVideo = document.getElementById("localVideo");
 const remoteVideo = document.getElementById("remoteVideo");
 const skipBtn = document.getElementById("skipBtn");
 
-async function startCamera() {
 
-    if (!localStream) {
+/* -----------------------------
+START CAMERA IMMEDIATELY
+----------------------------- */
+
+async function initCamera() {
+
+    if (localStream) return;
+
+    try {
 
         localStream = await navigator.mediaDevices.getUserMedia({
             video: true,
@@ -18,16 +25,37 @@ async function startCamera() {
         });
 
         localVideo.srcObject = localStream;
+
+        console.log("Camera ready");
+
+    } catch (err) {
+
+        console.error("Camera error:", err);
+
     }
 
 }
 
+initCamera();
+
+
+
+/* -----------------------------
+CREATE PEER CONNECTION
+----------------------------- */
+
 function createPeer() {
 
     peer = new RTCPeerConnection({
+
         iceServers: [
-            { urls: "stun:stun.l.google.com:19302" }
+
+            { urls: "stun:stun.l.google.com:19302" },
+            { urls: "stun:stun1.l.google.com:19302" },
+            { urls: "stun:stun2.l.google.com:19302" }
+
         ]
+
     });
 
     localStream.getTracks().forEach(track => {
@@ -35,7 +63,11 @@ function createPeer() {
     });
 
     peer.ontrack = e => {
+
+        console.log("Remote stream received");
+
         remoteVideo.srcObject = e.streams[0];
+
     };
 
     peer.onicecandidate = e => {
@@ -43,8 +75,10 @@ function createPeer() {
         if (e.candidate) {
 
             socket.emit("ice_candidate", {
+
                 room: room,
                 candidate: e.candidate
+
             });
 
         }
@@ -54,25 +88,55 @@ function createPeer() {
 }
 
 
+
+/* -----------------------------
+RESET PEER
+----------------------------- */
+
+function resetPeer() {
+
+    if (peer) {
+
+        peer.close();
+        peer = null;
+
+    }
+
+    remoteVideo.srcObject = null;
+
+}
+
+
+
+/* -----------------------------
+MATCH FOUND
+----------------------------- */
+
 socket.on("match_found", async data => {
 
     room = data.room;
 
     console.log("Matched in room:", room);
 
-    await startCamera();
+    if (!localStream) {
+        await initCamera();
+    }
 
     createPeer();
 
     if (data.initiator) {
+
+        console.log("Creating offer");
 
         const offer = await peer.createOffer();
 
         await peer.setLocalDescription(offer);
 
         socket.emit("offer", {
+
             room: room,
             offer: offer
+
         });
 
     }
@@ -80,7 +144,16 @@ socket.on("match_found", async data => {
 });
 
 
+
+/* -----------------------------
+RECEIVE OFFER
+----------------------------- */
+
 socket.on("offer", async data => {
+
+    console.log("Received offer");
+
+    if (!peer) createPeer();
 
     await peer.setRemoteDescription(data.offer);
 
@@ -89,50 +162,78 @@ socket.on("offer", async data => {
     await peer.setLocalDescription(answer);
 
     socket.emit("answer", {
+
         room: room,
         answer: answer
+
     });
 
 });
 
 
+
+/* -----------------------------
+RECEIVE ANSWER
+----------------------------- */
+
 socket.on("answer", async data => {
+
+    console.log("Received answer");
 
     await peer.setRemoteDescription(data.answer);
 
 });
 
 
+
+/* -----------------------------
+ICE CANDIDATES
+----------------------------- */
+
 socket.on("ice_candidate", async data => {
 
-    if (peer) {
-        await peer.addIceCandidate(data.candidate);
+    if (peer && peer.remoteDescription) {
+
+        try {
+
+            await peer.addIceCandidate(data.candidate);
+
+        } catch (err) {
+
+            console.error("ICE error:", err);
+
+        }
+
     }
 
 });
 
 
+
+/* -----------------------------
+SKIP BUTTON
+----------------------------- */
+
 skipBtn.onclick = () => {
+
+    console.log("Skipping");
 
     socket.emit("skip");
 
-    if (peer) {
-        peer.close();
-        peer = null;
-    }
-
-    remoteVideo.srcObject = null;
+    resetPeer();
 
 };
 
 
+
+/* -----------------------------
+PARTNER SKIPPED
+----------------------------- */
+
 socket.on("skip", () => {
 
-    if (peer) {
-        peer.close();
-        peer = null;
-    }
+    console.log("Partner skipped");
 
-    remoteVideo.srcObject = null;
+    resetPeer();
 
 });
