@@ -4,6 +4,8 @@ let localStream = null;
 let peer = null;
 let room = null;
 
+let pendingCandidates = [];
+
 const localVideo = document.getElementById("localVideo");
 const remoteVideo = document.getElementById("remoteVideo");
 const skipBtn = document.getElementById("skipBtn");
@@ -102,6 +104,8 @@ function resetPeer() {
 
     }
 
+    pendingCandidates = [];
+
     remoteVideo.srcObject = null;
 
 }
@@ -157,6 +161,13 @@ socket.on("offer", async data => {
 
     await peer.setRemoteDescription(data.offer);
 
+    // flush buffered ICE candidates
+    for (const candidate of pendingCandidates) {
+        await peer.addIceCandidate(candidate);
+    }
+
+    pendingCandidates = [];
+
     const answer = await peer.createAnswer();
 
     await peer.setLocalDescription(answer);
@@ -182,6 +193,13 @@ socket.on("answer", async data => {
 
     await peer.setRemoteDescription(data.answer);
 
+    // flush buffered ICE candidates
+    for (const candidate of pendingCandidates) {
+        await peer.addIceCandidate(candidate);
+    }
+
+    pendingCandidates = [];
+
 });
 
 
@@ -192,7 +210,9 @@ ICE CANDIDATES
 
 socket.on("ice_candidate", async data => {
 
-    if (peer && peer.remoteDescription) {
+    if (!peer) return;
+
+    if (peer.remoteDescription) {
 
         try {
 
@@ -203,6 +223,11 @@ socket.on("ice_candidate", async data => {
             console.error("ICE error:", err);
 
         }
+
+    } else {
+
+        // store candidate until remoteDescription is set
+        pendingCandidates.push(data.candidate);
 
     }
 
