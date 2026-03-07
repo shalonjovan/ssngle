@@ -19,10 +19,9 @@ socket_app = socketio.ASGIApp(sio, app)
 queue = []
 rooms = {}
 
-# user -> {blocked_user : expiry_time}
 cooldowns = {}
 
-COOLDOWN_TIME = 10
+COOLDOWN_TIME = 5
 
 
 @app.get("/")

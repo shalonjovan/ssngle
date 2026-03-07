@@ -163,7 +163,6 @@ socket.on("offer", async data => {
 
     await peer.setRemoteDescription(data.offer);
 
-    // flush buffered ICE candidates
     for (const candidate of pendingCandidates) {
         await peer.addIceCandidate(candidate);
     }
@@ -228,7 +227,6 @@ socket.on("ice_candidate", async data => {
 
     } else {
 
-        // store candidate until remoteDescription is set
         pendingCandidates.push(data.candidate);
 
     }
