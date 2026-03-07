@@ -49,16 +49,18 @@ CREATE PEER CONNECTION
 function createPeer() {
 
     peer = new RTCPeerConnection({
+    iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+        { urls: "stun:stun2.l.google.com:19302" },
 
-        iceServers: [
-
-            { urls: "stun:stun.l.google.com:19302" },
-            { urls: "stun:stun1.l.google.com:19302" },
-            { urls: "stun:stun2.l.google.com:19302" }
-
-        ]
-
-    });
+        {
+            urls: "turn:10.106.55.97:3478",
+            username: "usesrname1",
+            credential: "password1"
+        }
+    ]
+});
 
     localStream.getTracks().forEach(track => {
         peer.addTrack(track, localStream);
