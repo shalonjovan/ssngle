@@ -49,18 +49,18 @@ CREATE PEER CONNECTION
 function createPeer() {
 
     peer = new RTCPeerConnection({
-    iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
-        { urls: "stun:stun2.l.google.com:19302" },
+        iceServers: [
+            { urls: "stun:stun.l.google.com:19302" },
+            { urls: "stun:stun1.l.google.com:19302" },
+            { urls: "stun:stun2.l.google.com:19302" },
 
-        {
-            urls: "turn:10.106.55.97:3478",
-            username: "usesrname1",
-            credential: "password1"
-        }
-    ]
-});
+            {
+                urls: "turn:free.expressturn.com:3478",
+                username: "000000002088248567",
+                credential: "oinC8j1907fZqIJ8N+18UOEXu6Q="
+            }
+        ]
+    });
 
     localStream.getTracks().forEach(track => {
         peer.addTrack(track, localStream);
@@ -248,6 +248,7 @@ skipBtn.onclick = () => {
     socket.emit("skip");
 
     resetPeer();
+    room = null;
 
 };
 
@@ -262,5 +263,6 @@ socket.on("skip", () => {
     console.log("Partner skipped");
 
     resetPeer();
+    room = null;
 
 });
