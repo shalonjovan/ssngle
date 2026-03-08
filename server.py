@@ -36,7 +36,9 @@ COOLDOWN_TIME = 3
 def index():
     return FileResponse("index.html")
 
-
+@app.get("/ping")
+def ping():
+    return {"status": "alive"}
 
 @app.get("/api/ice")
 async def get_ice_servers():

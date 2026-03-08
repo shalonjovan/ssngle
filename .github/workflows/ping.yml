@@ -1,0 +1,15 @@
+name: Render Ping
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping Render server
+        run: curl -fsS https://ssngle.onrender.com/ping
+        
