@@ -65,7 +65,7 @@ async function createPeer() {
 
     localStream.getTracks().forEach(track => {
         peer.addTrack(track, localStream);
-    });
+    });try_match()
 
     peer.ontrack = e => {
 

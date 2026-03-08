@@ -2,7 +2,7 @@ import uuid
 import time
 from fastapi import FastAPI
 import socketio
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 import os
 from dotenv import load_dotenv
@@ -41,20 +41,20 @@ def index():
 @app.get("/api/ice")
 async def get_ice_servers():
 
-    ice = {
-        "iceServers": [
-            {"urls": "stun:stun.l.google.com:19302"},
-            { "urls": "stun:stun1.l.google.com:19302" },
-            { "urls": "stun:stun2.l.google.com:19302" },
-            {
-                "urls": TURN_URL,
-                "username": TURN_USER,
-                "credential": TURN_PASS
-            }
-        ]
-    }
+    ice_servers = [
+        {"urls": "stun:stun.l.google.com:19302"},
+        {"urls": "stun:stun1.l.google.com:19302"},
+        {"urls": "stun:stun2.l.google.com:19302"},
+    ]
 
-    return JSONResponse(ice)
+    if TURN_URL and TURN_USER and TURN_PASS:
+        ice_servers.append({
+            "urls": TURN_URL,
+            "username": TURN_USER,
+            "credential": TURN_PASS
+        })
+
+    return JSONResponse({"iceServers": ice_servers})
 # -------------------------
 # CONNECT
 # -------------------------
@@ -133,7 +133,9 @@ async def skip(sid):
 
             print(f"Cooldown set between {user1} and {user2}")
 
-            queue.append(user1)
+            if user1 not in queue:
+                queue.append(user1)
+            if user2 not in queue:
             queue.append(user2)
 
             print("Requeued:", user1, user2)
@@ -183,13 +185,19 @@ def can_match(u1, u2):
 
     if u1 in cooldowns:
         expiry = cooldowns[u1].get(u2)
-        if expiry and expiry > now:
-            return False
+        if expiry:
+            if expiry < now:
+                del cooldowns[u1][u2]
+            else:
+                return False
 
     if u2 in cooldowns:
         expiry = cooldowns[u2].get(u1)
-        if expiry and expiry > now:
-            return False
+        if expiry:
+            if expiry < now:
+                del cooldowns[u2][u1]
+            else:
+                return False
 
     return True
 
