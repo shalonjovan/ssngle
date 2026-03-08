@@ -40,27 +40,28 @@ async function initCamera() {
 
 initCamera();
 
-
-
 /* -----------------------------
 CREATE PEER CONNECTION
 ----------------------------- */
 
-function createPeer() {
+let ICE_CONFIG = null;
 
-    peer = new RTCPeerConnection({
-        iceServers: [
-            { urls: "stun:stun.l.google.com:19302" },
-            { urls: "stun:stun1.l.google.com:19302" },
-            { urls: "stun:stun2.l.google.com:19302" },
+async function loadIceServers() {
 
-            {
-                urls: "turn:free.expressturn.com:3478",
-                username: "000000002088248567",
-                credential: "oinC8j1907fZqIJ8N+18UOEXu6Q="
-            }
-        ]
-    });
+    if (ICE_CONFIG) return ICE_CONFIG;
+
+    const res = await fetch("/api/ice");
+
+    ICE_CONFIG = await res.json();
+
+    return ICE_CONFIG;
+}
+
+async function createPeer() {
+
+    const iceConfig = await loadIceServers();
+
+    peer = new RTCPeerConnection(iceConfig);
 
     localStream.getTracks().forEach(track => {
         peer.addTrack(track, localStream);

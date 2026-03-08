@@ -4,6 +4,14 @@ from fastapi import FastAPI
 import socketio
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+TURN_USER = os.getenv("TURN_USER")
+TURN_PASS = os.getenv("TURN_PASS")
+TURN_URL = "turn:free.expressturn.com:3478"
 
 sio = socketio.AsyncServer(
     async_mode="asgi",
@@ -29,6 +37,24 @@ def index():
     return FileResponse("index.html")
 
 
+
+@app.get("/api/ice")
+async def get_ice_servers():
+
+    ice = {
+        "iceServers": [
+            {"urls": "stun:stun.l.google.com:19302"},
+            { "urls": "stun:stun1.l.google.com:19302" },
+            { "urls": "stun:stun2.l.google.com:19302" },
+            {
+                "urls": TURN_URL,
+                "username": TURN_USER,
+                "credential": TURN_PASS
+            }
+        ]
+    }
+
+    return JSONResponse(ice)
 # -------------------------
 # CONNECT
 # -------------------------
