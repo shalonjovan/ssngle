@@ -11,7 +11,7 @@ load_dotenv()
 
 TURN_USER = os.getenv("TURN_USER")
 TURN_PASS = os.getenv("TURN_PASS")
-TURN_URL = "turn:free.expressturn.com:3478"
+TURN_URL = os.getenv("TURN_URL")
 
 sio = socketio.AsyncServer(
     async_mode="asgi",
