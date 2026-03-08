@@ -136,7 +136,7 @@ async def skip(sid):
             if user1 not in queue:
                 queue.append(user1)
             if user2 not in queue:
-            queue.append(user2)
+                queue.append(user2)
 
             print("Requeued:", user1, user2)
 
