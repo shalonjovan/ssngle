@@ -20,7 +20,7 @@ sio = socketio.AsyncServer(
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="."), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 socket_app = socketio.ASGIApp(sio, app)
 
