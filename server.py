@@ -21,7 +21,7 @@ rooms = {}
 
 cooldowns = {}
 
-COOLDOWN_TIME = 5
+COOLDOWN_TIME = 3
 
 
 @app.get("/")

@@ -105,6 +105,9 @@ header {
   transition: opacity 0.4s;
 }
 
+.video-box video {
+  transform: scaleX(-1);
+}
 .placeholder {
   position: absolute;
   inset: 0;
