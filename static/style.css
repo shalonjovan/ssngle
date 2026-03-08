@@ -55,6 +55,17 @@ header {
 .status-pill.waiting  { background: rgba(255,180,0,0.10);   color: #ffb400;        border: 1px solid rgba(255,180,0,0.3); }
 .status-pill.chatting { background: rgba(0,255,136,0.10);   color: var(--accent);  border: 1px solid rgba(0,255,136,0.3); }
 
+.online-count {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  padding: 5px 14px;
+  border-radius: 99px;
+  letter-spacing: 0.05em;
+  background: rgba(33, 72, 24, 0.796);
+  color: #38f658;
+  border: 1px solid #38f658;
+}
+
 .chat-screen {
   display: flex;
   flex-direction: column;

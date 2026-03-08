@@ -10,7 +10,6 @@ const localVideo = document.getElementById("localVideo");
 const remoteVideo = document.getElementById("remoteVideo");
 const skipBtn = document.getElementById("skipBtn");
 
-
 /* -----------------------------
 START CAMERA IMMEDIATELY
 ----------------------------- */
@@ -114,6 +113,16 @@ function resetPeer() {
 
 }
 
+// /* -----------------------------
+// ONLINE COUNT
+// ----------------------------- */
+
+// socket.on("online_count", data => {
+
+//     console.log("Online users:", data.count);
+//     onlineCount.textContent = `${data.count} online`;
+
+// });
 
 
 /* -----------------------------

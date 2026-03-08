@@ -11,6 +11,7 @@
 
 <header>
   <div class="logo">SSN<span>gle</span></div>
+  <div class="online-count" id="onlineCount">0 online</div>
   <div class="status-pill idle" id="status-pill">IDLE</div>
 </header>
 
@@ -79,6 +80,12 @@
       setStatus('CONNECTED', 'chatting');
       setRemotePlaceholder(true, true, 'Connecting video…');
       showToast('Stranger found!');
+    });
+
+    const onlineCount = document.getElementById("onlineCount");
+    socket.on("online_count", data => {
+        console.log("Online users:", data.count);
+        onlineCount.textContent = `${data.count} online`;
     });
 
     socket.on('skip', () => {

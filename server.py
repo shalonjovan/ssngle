@@ -13,6 +13,8 @@ TURN_USER = os.getenv("TURN_USER")
 TURN_PASS = os.getenv("TURN_PASS")
 TURN_URL = os.getenv("TURN_URL")
 
+connected_users = set()
+
 sio = socketio.AsyncServer(
     async_mode="asgi",
     cors_allowed_origins="*"
@@ -72,6 +74,10 @@ async def connect(sid, environ):
     print("SID:", sid)
     print("IP:", ip)
 
+    connected_users.add(sid)
+    print("\nConnected users:", len(connected_users))
+    await sio.emit("online_count", {"count": len(connected_users)})
+
     queue.append(sid)
 
     print("Queue:", queue)
@@ -87,6 +93,10 @@ async def connect(sid, environ):
 async def disconnect(sid):
 
     print("\nUser disconnected:", sid)
+
+    connected_users.discard(sid)
+    print("Total online:", len(connected_users))
+    await sio.emit("online_count", {"count": len(connected_users)})
 
     if sid in queue:
         queue.remove(sid)
@@ -130,7 +140,6 @@ async def skip(sid):
 
             now = time.time()
 
-            # add cooldown
             cooldowns.setdefault(user1, {})[user2] = now + COOLDOWN_TIME
             cooldowns.setdefault(user2, {})[user1] = now + COOLDOWN_TIME
 
