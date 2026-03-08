@@ -42,6 +42,7 @@ def ping():
 
 @app.get("/api/ice")
 async def get_ice_servers():
+    print("\nICE servers requested")
 
     ice_servers = [
         {"urls": "stun:stun.l.google.com:19302"},
@@ -55,7 +56,7 @@ async def get_ice_servers():
             "username": TURN_USER,
             "credential": TURN_PASS
         })
-
+    print("Returning ICE servers:", ice_servers)
     return JSONResponse({"iceServers": ice_servers})
 # -------------------------
 # CONNECT

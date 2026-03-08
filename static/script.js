@@ -53,6 +53,7 @@ async function loadIceServers() {
     const res = await fetch("/api/ice");
 
     ICE_CONFIG = await res.json();
+    console.log("Loaded ICE servers:", ICE_CONFIG);
 
     return ICE_CONFIG;
 }
@@ -65,7 +66,7 @@ async function createPeer() {
 
     localStream.getTracks().forEach(track => {
         peer.addTrack(track, localStream);
-    });try_match()
+    });
 
     peer.ontrack = e => {
 
@@ -129,7 +130,7 @@ socket.on("match_found", async data => {
         await initCamera();
     }
 
-    createPeer();
+    await createPeer();
 
     if (data.initiator) {
 
