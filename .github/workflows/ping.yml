@@ -11,6 +11,6 @@ jobs:
 
     steps:
       - name: Ping Render server
-        run: curl -fsS https://ssngle.onrender.com/ping        
-        run: curl -fsS https://ssngle.onrender.com/
-
+        run: |
+          curl -fsS https://ssngle.onrender.com/ping
+          curl -fsS https://ssngle.onrender.com/
