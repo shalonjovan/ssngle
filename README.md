@@ -21,8 +21,7 @@ SSNgle is a simple random video chat application. It matches two users and conne
 ## Project Structure
 
 ```
-
-project/
+SSNgle/
 ├── server.py
 ├── index.html
 ├── requirements.txt
@@ -30,7 +29,6 @@ project/
 │   ├── script.js
 │   └── style.css
 └── .env
-
 ```
 
 ## Setup
@@ -38,9 +36,7 @@ project/
 ### 1. Install dependencies
 
 ```
-
 pip install -r requirements.txt
-
 ```
 
 ### 2. Add environment variables
@@ -48,27 +44,21 @@ pip install -r requirements.txt
 Create a `.env` file:
 
 ```
-
 TURN_URL=your_turn_url
 TURN_USER=your_turn_user
 TURN_PASS=your_turn_password
-
 ```
 
 ### 3. Run the server
 
 ```
-
 uvicorn server:socket_app --host 0.0.0.0 --port 8000
-
 ```
 
 ### 4. Open in browser
 
 ```
-
 http://localhost:8000
-
 ```
 
 ## How it works
