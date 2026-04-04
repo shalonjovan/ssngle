@@ -82,4 +82,3 @@ http://localhost:8000
 
 - TURN server is required for reliable connections
 - Static files are served from `/static`
-```
