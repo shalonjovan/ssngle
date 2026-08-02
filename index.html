@@ -38,9 +38,22 @@
   </div>
 
   <div class="controls">
+    <button id="chatBtn" class="btn btn-chat">Chat</button>
     <button id="skipBtn" class="btn btn-skip">Skip →</button>
   </div>
 
+</div>
+
+<div id="chatPanel" class="chat-panel hidden">
+  <div class="chat-header">
+    <span>Chat</span>
+    <button id="chatCloseBtn" class="chat-close" aria-label="Close chat">&times;</button>
+  </div>
+  <div id="chatMessages" class="chat-messages"></div>
+  <form id="chatForm" class="chat-input" autocomplete="off">
+    <input id="chatInput" type="text" placeholder="Say something…" maxlength="500" />
+    <button type="submit" class="chat-send">Send</button>
+  </form>
 </div>
 
 <div id="toast"></div>

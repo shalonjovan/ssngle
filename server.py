@@ -189,6 +189,34 @@ async def ice_candidate(sid, data):
 
 
 # -------------------------
+# CHAT
+# -------------------------
+
+MAX_CHAT_LENGTH = 500
+
+@sio.event
+async def chat_message(sid, data):
+
+    room = data.get("room")
+    text = (data.get("text") or "").strip()
+
+    if not room or room not in rooms:
+        return
+
+    if sid not in rooms[room]:
+        return
+
+    if not text:
+        return
+
+    text = text[:MAX_CHAT_LENGTH]
+
+    print(f"Chat in {room} from {sid}: {text}")
+
+    await sio.emit("chat_message", {"text": text}, room=room, skip_sid=sid)
+
+
+# -------------------------
 # MATCHMAKING
 # -------------------------
 

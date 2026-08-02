@@ -10,6 +10,13 @@ const localVideo = document.getElementById("localVideo");
 const remoteVideo = document.getElementById("remoteVideo");
 const skipBtn = document.getElementById("skipBtn");
 
+const chatBtn = document.getElementById("chatBtn");
+const chatPanel = document.getElementById("chatPanel");
+const chatCloseBtn = document.getElementById("chatCloseBtn");
+const chatMessages = document.getElementById("chatMessages");
+const chatForm = document.getElementById("chatForm");
+const chatInput = document.getElementById("chatInput");
+
 /* -----------------------------
 START CAMERA IMMEDIATELY
 ----------------------------- */
@@ -112,6 +119,67 @@ function resetPeer() {
     remoteVideo.srcObject = null;
 
 }
+
+/* -----------------------------
+CHAT
+----------------------------- */
+
+function appendChat(text, who) {
+
+    const row = document.createElement("div");
+    row.className = "chat-msg " + who;
+
+    const label = document.createElement("span");
+    label.className = "chat-label";
+    label.textContent = who === "you" ? "You" : "Stranger";
+
+    const body = document.createElement("p");
+    body.textContent = text;
+
+    row.appendChild(label);
+    row.appendChild(body);
+
+    chatMessages.appendChild(row);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+}
+
+function clearChat() {
+    chatMessages.innerHTML = "";
+}
+
+function sendChat() {
+
+    const text = chatInput.value.trim();
+
+    if (!text || !room) return;
+
+    socket.emit("chat_message", {
+        room: room,
+        text: text
+    });
+
+    appendChat(text, "you");
+    chatInput.value = "";
+
+}
+
+function toggleChat() {
+    chatPanel.classList.toggle("hidden");
+}
+
+chatBtn.onclick = toggleChat;
+
+chatCloseBtn.onclick = () => chatPanel.classList.add("hidden");
+
+chatForm.onsubmit = e => {
+    e.preventDefault();
+    sendChat();
+};
+
+socket.on("chat_message", data => {
+    appendChat(data.text, "stranger");
+});
 
 // /* -----------------------------
 // ONLINE COUNT
@@ -258,6 +326,7 @@ skipBtn.onclick = () => {
 
     resetPeer();
     room = null;
+    clearChat();
 
 };
 
@@ -273,5 +342,6 @@ socket.on("skip", () => {
 
     resetPeer();
     room = null;
+    clearChat();
 
 });
