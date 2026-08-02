@@ -73,6 +73,74 @@ header {
   min-height: 0;
 }
 
+.home {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.home-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 48px 40px;
+  text-align: center;
+  max-width: 420px;
+  width: 100%;
+}
+
+.home-logo {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -2px;
+}
+.home-logo span { color: var(--accent); }
+
+.home-tagline {
+  margin: 12px 0 28px;
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+}
+
+.home-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.home-note {
+  margin-top: 22px;
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+}
+
+.text-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.text-chat-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
 .videos-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -199,6 +267,35 @@ header {
 .btn-chat:hover {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.btn-video {
+  background: var(--accent);
+  color: #04130c;
+  box-shadow: 0 0 24px rgba(0,255,136,0.25);
+}
+.btn-video:hover {
+  box-shadow: 0 0 40px rgba(0,255,136,0.45);
+}
+
+.btn-text {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-text:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-ghost {
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover {
+  color: var(--text);
+  border-color: var(--text);
 }
 
 .chat-panel {

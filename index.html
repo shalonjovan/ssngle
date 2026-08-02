@@ -15,7 +15,19 @@
   <div class="status-pill idle" id="status-pill">IDLE</div>
 </header>
 
-<div class="chat-screen">
+<div id="home" class="home">
+  <div class="home-box">
+    <div class="home-logo">SSN<span>gle</span></div>
+    <p class="home-tagline">Talk to strangers. Pick your vibe.</p>
+    <div class="home-actions">
+      <button id="startVideo" class="btn btn-video">Video Chat</button>
+      <button id="startText" class="btn btn-text">Text Chat</button>
+    </div>
+    <p class="home-note">No signup. Random matching. One stranger at a time.</p>
+  </div>
+</div>
+
+<div class="chat-screen" id="videoMode" style="display:none">
 
   <div class="videos-wrapper">
 
@@ -38,8 +50,27 @@
   </div>
 
   <div class="controls">
+    <button id="videoHomeBtn" class="btn btn-ghost">Home</button>
     <button id="chatBtn" class="btn btn-chat">Chat</button>
     <button id="skipBtn" class="btn btn-skip">Skip →</button>
+  </div>
+
+</div>
+
+<div class="chat-screen" id="textMode" style="display:none">
+
+  <div class="text-chat">
+    <div class="text-chat-header" id="textLabel">Connecting…</div>
+    <div id="textMessages" class="chat-messages"></div>
+    <form id="textForm" class="chat-input" autocomplete="off">
+      <input id="textInput" type="text" placeholder="Say something…" maxlength="500" />
+      <button type="submit" class="chat-send">Send</button>
+    </form>
+  </div>
+
+  <div class="controls">
+    <button id="textHomeBtn" class="btn btn-ghost">Home</button>
+    <button id="textSkipBtn" class="btn btn-skip">Skip →</button>
   </div>
 
 </div>
@@ -60,69 +91,5 @@
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script src="/static/script.js"></script>
-
-<script>
-  function setStatus(text, cls) {
-    const el = document.getElementById('status-pill');
-    el.textContent = text;
-    el.className = 'status-pill ' + cls;
-  }
-
-  function showToast(msg, duration = 2500) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), duration);
-  }
-
-  function setRemotePlaceholder(show, spinning = false, text = '') {
-    const ph  = document.getElementById('remote-placeholder');
-    const sp  = document.getElementById('remote-spinner');
-    const lb  = document.getElementById('remote-label');
-    ph.classList.toggle('hidden', !show);
-    sp.style.display = spinning ? 'block' : 'none';
-    lb.textContent = text;
-    document.getElementById('remoteVideo').style.opacity = show ? '0' : '1';
-  }
-
-  window.addEventListener('load', () => {
-    setStatus('SEARCHING…', 'waiting');
-    setRemotePlaceholder(true, true, 'Finding a stranger…');
-
-    socket.on('match_found', () => {
-      setStatus('CONNECTED', 'chatting');
-      setRemotePlaceholder(true, true, 'Connecting video…');
-      showToast('Stranger found!');
-    });
-
-    const onlineCount = document.getElementById("onlineCount");
-    socket.on("online_count", data => {
-        console.log("Online users:", data.count);
-        onlineCount.textContent = `${data.count} online`;
-    });
-
-    socket.on('skip', () => {
-      setStatus('SEARCHING…', 'waiting');
-      setRemotePlaceholder(true, true, 'Finding next stranger…');
-      showToast('Stranger disconnected');
-    });
-
-    document.getElementById('remoteVideo').addEventListener('playing', () => {
-      setRemotePlaceholder(false);
-      setStatus('CONNECTED', 'chatting');
-    });
-
-    document.getElementById('localVideo').addEventListener('playing', () => {
-      document.getElementById('local-placeholder').classList.add('hidden');
-    });
-
-    document.getElementById('skipBtn').addEventListener('click', () => {
-      setStatus('SEARCHING…', 'waiting');
-      setRemotePlaceholder(true, true, 'Finding next stranger…');
-      showToast('⏭ Skipped');
-    });
-  });
-</script>
-
 </body>
 </html>

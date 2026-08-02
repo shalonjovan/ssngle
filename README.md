@@ -4,7 +4,8 @@ SSNgle is a simple random video chat application. It matches two users and conne
 
 ## Features
 
-- Random matchmaking
+- Choose between video chat and text-only chat
+- Random matchmaking within your selected mode
 - Peer-to-peer video chat (WebRTC)
 - Real-time text chat while connected
 - Skip to next user
