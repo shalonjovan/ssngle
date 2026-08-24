@@ -1,4 +1,4 @@
-fastapi
-uvicorn
-python-socketio
-python-dotenv
+fastapi==0.141.1
+uvicorn==0.52.1
+python-socketio==5.16.3
+python-dotenv==1.2.2

@@ -28,6 +28,7 @@ socket_app = socketio.ASGIApp(sio, app)
 
 queue = []
 rooms = {}
+user_modes = {}
 
 cooldowns = {}
 
@@ -79,8 +80,62 @@ async def connect(sid, environ):
     print("\nConnected users:", len(connected_users))
     await sio.emit("online_count", {"count": len(connected_users)})
 
-    queue.append(sid)
 
+# -------------------------
+# JOIN (choose video / text mode)
+# -------------------------
+
+@sio.event
+async def join(sid, data):
+
+    mode = (data or {}).get("mode", "video")
+
+    if mode not in ("video", "text"):
+        mode = "video"
+
+    if any(sid in users for users in rooms.values()):
+        return
+
+    user_modes[sid] = mode
+
+    if sid not in queue:
+        queue.append(sid)
+
+    print(f"User {sid} joined queue as {mode} mode")
+    print("Queue:", queue)
+
+    await try_match()
+
+
+# -------------------------
+# LEAVE (go back to landing page)
+# -------------------------
+
+@sio.event
+async def leave(sid):
+
+    if sid in queue:
+        queue.remove(sid)
+
+    for room_id, users in list(rooms.items()):
+
+        if sid in users:
+
+            users.remove(sid)
+
+            if users:
+                other = users[0]
+                if other not in queue:
+                    queue.append(other)
+
+            del rooms[room_id]
+
+            await sio.emit("skip", room=room_id, skip_sid=sid)
+            break
+
+    user_modes.pop(sid, None)
+
+    print("User left:", sid)
     print("Queue:", queue)
 
     await try_match()
@@ -113,10 +168,13 @@ async def disconnect(sid):
             if users:
                 other = users[0]
                 print("Requeue remaining user:", other)
-                queue.append(other)
+                if other not in queue:
+                    queue.append(other)
 
             del rooms[room_id]
             break
+
+    user_modes.pop(sid, None)
 
     print("Queue:", queue)
     print("Rooms:", rooms)
@@ -189,10 +247,41 @@ async def ice_candidate(sid, data):
 
 
 # -------------------------
+# CHAT
+# -------------------------
+
+MAX_CHAT_LENGTH = 500
+
+@sio.event
+async def chat_message(sid, data):
+
+    room = data.get("room")
+    text = (data.get("text") or "").strip()
+
+    if not room or room not in rooms:
+        return
+
+    if sid not in rooms[room]:
+        return
+
+    if not text:
+        return
+
+    text = text[:MAX_CHAT_LENGTH]
+
+    print(f"Chat in {room} from {sid}: {text}")
+
+    await sio.emit("chat_message", {"text": text}, room=room, skip_sid=sid)
+
+
+# -------------------------
 # MATCHMAKING
 # -------------------------
 
 def can_match(u1, u2):
+
+    if user_modes.get(u1) != user_modes.get(u2):
+        return False
 
     now = time.time()
 
